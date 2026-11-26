@@ -32,6 +32,10 @@ Lớp K5 làm khác `CODE_LAB.md` và `DAY14_DELIVERY_CHECKLIST.md` ở vài ch�
 
 ---
 
+## Kết quả CP0–CP5
+
+[MISSION_ANSWERS.md](MISSION_ANSWERS.md) ghi kết quả chạy ví dụ, bộ chấm Part 6 và AI log.
+
 ## Cấu Trúc Project
 
 ```
