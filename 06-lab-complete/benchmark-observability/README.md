@@ -400,16 +400,16 @@ Với mỗi thí nghiệm: chụp màn hình dashboard + alert, ghi lại **mấ
 ```bash
 # 1 instance
 docker compose up -d --scale agent=1
-docker compose run --rm locust -f /mnt/locust/locustfile.py --host http://nginx \
-  --headless -u 100 -r 10 -t 2m --csv /mnt/results/scale_1
+docker compose run --rm --no-deps locust -f /mnt/locust/locustfile.py --host http://nginx \
+  --headless --exit-code-on-error 0 -u 100 -r 10 -t 2m --csv /mnt/results/scale_1
 
 # 3 instance
 docker compose up -d --scale agent=3
-docker compose run --rm locust -f /mnt/locust/locustfile.py --host http://nginx \
-  --headless -u 100 -r 10 -t 2m --csv /mnt/results/scale_3
+docker compose run --rm --no-deps locust -f /mnt/locust/locustfile.py --host http://nginx \
+  --headless --exit-code-on-error 0 -u 100 -r 10 -t 2m --csv /mnt/results/scale_3
 ```
 
-Không cần restart gì cả: Prometheus (`dns_sd_configs`) và Nginx (`server agent:8000 resolve`) đều hỏi lại Docker DNS mỗi 10 giây nên tự thấy instance mới. Chờ ~15 giây rồi kiểm tra panel "Requests/s theo instance" trước khi chạy Locust.
+`--no-deps` giữ số replica đã chọn. `--exit-code-on-error 0` cho phép chuỗi đo tiếp tục khi mock trả 503, và lỗi vẫn được đếm trong CSV. Prometheus (`dns_sd_configs`) và Nginx (`server agent:8000 resolve`) đều hỏi lại Docker DNS mỗi 10 giây. Chờ khoảng 15 giây rồi kiểm tra số instance trước khi chạy Locust.
 
 So sánh RPS, p95, error rate giữa 2 lần chạy rồi giải thích. Nếu scale lên 3 mà p95 gần như không đổi, nút thắt nằm ở đâu? (Gợi ý: xem panel LLM latency.)
 

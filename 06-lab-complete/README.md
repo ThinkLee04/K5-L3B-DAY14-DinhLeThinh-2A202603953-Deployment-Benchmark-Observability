@@ -107,7 +107,7 @@ Nếu Redis đã chạy riêng, cài `pip install -r requirements.txt` rồi dù
 python check_production_ready.py                 # chấm đầy đủ — cần Docker đang chạy
 python check_production_ready.py --skip-docker   # chế độ nhanh khi đang làm (bỏ build image)
 python check_production_ready.py --static-only   # chỉ đọc file, không chạy agent
-python check_production_ready.py --public-url https://your-app.railway.app   # thêm kiểm tra URL đã deploy
+python check_production_ready.py --public-url https://day14-agent-ubeq.onrender.com
 ```
 
 - Kết quả in theo từng tiêu chí: ✅ đạt · ❌ chưa đạt · ⚠️ chưa kiểm tra được.
@@ -118,7 +118,7 @@ python check_production_ready.py --public-url https://your-app.railway.app   # t
 
 ## Deploy
 
-Blueprint [render.yaml](render.yaml) khai báo web service và Redis cho CP6. Xem phần Cloud Deployment trong [CHECKPOINTS.md](../CHECKPOINTS.md) để kiểm tra URL public sau khi triển khai.
+Cấu hình Render, URL public và kết quả xác minh nằm trong [DEPLOYMENT.md](../DEPLOYMENT.md).
 
 ---
 

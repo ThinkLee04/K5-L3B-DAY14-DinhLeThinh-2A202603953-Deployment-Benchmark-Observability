@@ -10,10 +10,13 @@
 | CP3 · API Security | Thử API key, lấy JWT, vượt giới hạn lab, phân tích budget | Part 4 |
 | CP4 · Scaling & Reliability | Quan sát probe và SIGTERM, chạy `test_stateless.py` với 3 agent sau Nginx | Part 5 |
 | CP5 · Final Project | Hoàn thiện agent trong `06-lab-complete/` và chạy bộ chấm đủ 12 tiêu chí | Part 6 và [hướng dẫn chạy](06-lab-complete/README.md) |
+| CP6 · Cloud Deployment | Deploy agent Part 6 lên Render với Redis, kiểm 4 HTTP status và chụp 3 ảnh | Part 3 và [DEPLOYMENT.md](DEPLOYMENT.md) |
+| CP7 · Benchmark local | Thêm histogram, đo ở 4 mức concurrency và 3 mức slow rate, chạy eval trước/sau sửa KB | [BENCHMARK_REPORT.md](BENCHMARK_REPORT.md), `reports/` |
+| CP8 · Observability | Đo scale bằng Locust headless, chụp dashboard và hai trace, đo thời gian để alert firing | [BENCHMARK_REPORT.md](BENCHMARK_REPORT.md), `benchmark-results/`, `screenshots/` |
 
 Thứ tự CP theo [CHECKPOINTS.md](CHECKPOINTS.md). Yêu cầu bằng chứng theo [SUBMISSION.md](SUBMISSION.md) và [RUBRIC.md](RUBRIC.md).
 
-CP0–CP5 đã xác minh tại máy. Cấu hình Render Blueprint của agent sẵn sàng cho bước triển khai CP6.
+CP0–CP5, CP7 và CP8 đã xác minh tại máy. CP6 đã xác minh đủ bốn mã HTTP trên URL Render và có ba ảnh deploy.
 
 ### CP0 — Setup
 
@@ -103,6 +106,26 @@ Server: nginx
 
 {"answer":"Agent đang hoạt động tốt! (mock response) Hỏi thêm câu hỏi đi nhé."}
 ```
+
+## Part 3 — Cloud Deployment
+
+### Exercise 3.1–3.2 — Render và Railway
+
+Kiểm tra public trên Render cho thấy `GET /health` và `GET /ready` trả **200**, `POST /ask` thiếu key trả **401** và `POST /ask` có key đúng trả **200**. [URL agent Part 6](https://day14-agent-ubeq.onrender.com) · [Lệnh kiểm và ảnh deploy](DEPLOYMENT.md)
+
+| Railway `railway.toml` | Render `render.yaml` |
+| --- | --- |
+| Cấu hình build Dockerfile và probe `/health` của service agent theo hợp đồng bài lab | Blueprint khai báo cả web service và Key Value, chọn vùng và gói, dùng `rootDir` để build đúng thư mục |
+| Redis và các biến tham chiếu được cấu hình ở cấp project/service | `REDIS_URL` lấy từ `connectionString` của Key Value và `AGENT_API_KEY` do Render sinh |
+
+Railway đã đánh dấu cấu hình TOML cũ là deprecated. File TOML giữ đúng hợp đồng bộ chấm, còn quy trình triển khai của bài dùng Render Blueprint. [Railway Config as Code](https://docs.railway.com/config-as-code) · [Render Blueprint reference](https://render.com/docs/blueprint-spec)
+
+### Exercise 3.3 — Cloud Run
+
+1. Bước `test` dùng Python 3.11 để cài dependencies và chạy pytest.
+2. Bước `build` đóng gói image và gắn hai tag theo commit SHA và `latest`. Bước `push` đẩy cả hai tag lên registry.
+3. Bước `deploy` dùng tag theo commit SHA để triển khai Cloud Run ở `asia-southeast1`, giới hạn 1–10 instance và tham chiếu Secret Manager.
+4. `service.yaml` là cách khai báo service riêng. File nêu cổng 8000, concurrency 80, startup probe `/ready`, liveness probe `/health` và cách lấy secret.
 
 ## Part 4 — API Security
 
@@ -210,4 +233,5 @@ Kiểm tra bổ sung với 2 worker cho kết quả câu hỏi chỉ có khoản
 
 | Yêu cầu | Hỗ trợ đã dùng | Cách đối chiếu |
 | --- | --- | --- |
-| Đọc README và các file liên quan, tách checkpoint và hoàn thiện file | Codex phân tích đường dẫn, soạn phần giải thích, triển khai Part 6 và hỗ trợ chạy kiểm tra trong workspace. | Có thể đối chiếu diff với hợp đồng trong README Part 6, chạy lại bộ chấm và kiểm kết quả HTTP. Kết quả tự sửa và tự kiểm của học viên sẽ do học viên ghi sau khi thực hiện. |
+| Đọc README và các file liên quan, tách checkpoint và hoàn thiện file | Codex phân tích đường dẫn, soạn phần giải thích, triển khai Part 6, bổ sung bài tập Part 7 và hỗ trợ chạy kiểm tra trong workspace. | Học viên deploy trên Render, tự chạy bốn request public và lưu ảnh kết quả. Bằng chứng kiểm tra local được ghi ở Part 6 và trong báo cáo benchmark. |
+| Soát bài theo `SUBMISSION.md` | Codex đối chiếu số liệu với JSON/CSV, chạy lại bộ chấm và eval, kiểm tra các ảnh rồi rút gọn hướng dẫn deploy. | Học viên đã tự xác minh bốn mã HTTP trên Render. Hai lượt kiểm tra lại trong workspace cho `PASS 12/12` và eval `23/23`, với 0 regression. |
